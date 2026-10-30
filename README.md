@@ -58,7 +58,7 @@ The recent-projects data comes from `~/Library/Developer/Xcode/DerivedData/*/inf
 open iXcode.xcodeproj   # build & debug in Xcode, or:
 make                    # xcodebuild Release -> build/iXcode.app
 make test               # run unit tests (pure-logic bundle, no app launch)
-make install            # install to ~/Applications and launch
+make install            # install to /Applications and launch (INSTALL_DIR=... to override)
 make project            # regenerate the xcodeproj after editing project.yml
 ```
 

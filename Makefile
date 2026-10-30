@@ -29,12 +29,19 @@ test: $(XCODEPROJ) $(SOURCES) $(TEST_SOURCES)
 project:
 	xcodegen generate
 
-## 安装到 ~/Applications 并启动
+## 安装到 /Applications 并启动（想装别处可用 make install INSTALL_DIR=... 覆盖）
+INSTALL_DIR ?= /Applications
+
 install: app
+	@if [ ! -w "$(INSTALL_DIR)" ]; then \
+		echo "⚠️  $(INSTALL_DIR) 不可写：请用 sudo make install，或 make install INSTALL_DIR=$$HOME/Applications"; \
+		exit 1; \
+	fi
 	pkill -f "$(APP_NAME).app/Contents/MacOS/$(APP_NAME)" 2>/dev/null || true
-	rm -rf ~/Applications/$(APP_NAME).app
-	cp -R $(APP_BUNDLE) ~/Applications/
-	open ~/Applications/$(APP_NAME).app
+	rm -rf "$(INSTALL_DIR)/$(APP_NAME).app"
+	cp -R $(APP_BUNDLE) "$(INSTALL_DIR)/"
+	/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$(INSTALL_DIR)/$(APP_NAME).app"
+	open "$(INSTALL_DIR)/$(APP_NAME).app"
 
 clean:
 	rm -rf $(BUILD_DIR) $(TEST_BUILD_DIR)

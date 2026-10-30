@@ -52,7 +52,7 @@ scripts/                      # 辅助脚本（图标合成、API 推送）
 make project      # 改 project.yml / 增删源文件后，用 xcodegen 重新生成 iXcode.xcodeproj
 make app          # xcodebuild Release 构建 → 产物固定拷贝到 build/iXcode.app（CI 依赖此路径）
 make test         # 跑单元测试（纯逻辑 bundle，不启动 App；CI 也会跑）
-make install      # 装到 ~/Applications 并重启
+make install      # 装到 /Applications 并重启（INSTALL_DIR=... 可覆盖）
 open iXcode.xcodeproj   # 用 Xcode 打开（可断点调试）
 ```
 

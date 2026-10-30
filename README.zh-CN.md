@@ -57,7 +57,7 @@ Xcode 自带的项目切换能力相当原始：Recent 菜单只给个文件名�
 open iXcode.xcodeproj   # 在 Xcode 里构建 / 断点调试，或者：
 make                    # xcodebuild Release → build/iXcode.app
 make test               # 跑单元测试（纯逻辑 bundle，不会启动 App）
-make install            # 安装到 ~/Applications 并启动
+make install            # 安装到 /Applications 并启动（可用 INSTALL_DIR=... 覆盖）
 make project            # 改过 project.yml 后重新生成工程
 ```
 
