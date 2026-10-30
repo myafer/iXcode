@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build app bundle
+        run: make app
+
+      - name: Make DMG (drag-to-Applications)
+        run: |
+          STAGING=$(mktemp -d)
+          cp -R build/iXcode.app "$STAGING/"
+          ln -s /Applications "$STAGING/Applications"
+          hdiutil create -volname "iXcode" -srcfolder "$STAGING" \
+            -ov -format UDZO "build/iXcode-${{ github.ref_name }}.dmg"
+
+      # zip 保留：≤4.1 的自动更新只认 zip，老版本用户要能升上来
+      - name: Zip app (legacy auto-update compat)
+        run: cd build && zip -qry iXcode-${{ github.ref_name }}.zip iXcode.app
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/iXcode-${{ github.ref_name }}.dmg
+            build/iXcode-${{ github.ref_name }}.zip
+          # 发布说明用仓库内手写稿：发版前更新 .github/release-notes.md
+          body_path: .github/release-notes.md

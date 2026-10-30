@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["Sources/**", "Tests/**", "Resources/**", "project.yml", "iXcode.xcodeproj/**", "Makefile"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: make test
+
+      - name: Build app bundle
+        run: make app
+
+      - name: Smoke test bundle
+        run: |
+          test -x build/iXcode.app/Contents/MacOS/iXcode
+          test -f build/iXcode.app/Contents/Info.plist
+          file build/iXcode.app/Contents/MacOS/iXcode | grep -q arm64
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iXcode-app
+          path: build/iXcode.app

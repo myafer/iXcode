@@ -1,0 +1,62 @@
+name: iXcode
+options:
+  bundleIdPrefix: com.afer
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "13.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1.0.0"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    CODE_SIGN_IDENTITY: "-"          # ad-hoc 签名（Sign to Run Locally）
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+    ENABLE_HARDENED_RUNTIME: NO
+    PRODUCT_BUNDLE_IDENTIFIER: com.afer.ixcode
+    GENERATE_INFOPLIST_FILE: NO      # 用现成的 Resources/Info.plist，别让 Xcode 再生成一份
+    INFOPLIST_FILE: Resources/Info.plist
+
+targets:
+  iXcode:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      # 图标不用 Asset Catalog：沿用 CFBundleIconFile + 裸 .icns（icns 由 scripts 生成，不要手改）
+      - path: Resources/AppIcon.icns
+        buildPhase: resources
+
+  # 纯逻辑单元测试：不挂 App 宿主（不会启动菜单栏 App），CI 上无头可跑。
+  # 因此只单独编译 Models + Core（Foundation-only）；不要往这里加依赖 AppKit / App 状态的源文件。
+  iXcodeTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+      - path: Sources/Models.swift
+      - path: Sources/Core
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.afer.ixcode.tests
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: ""
+        CODE_SIGN_IDENTITY: "-"
+
+# 共享 scheme：必须提交到仓库，否则 CI / 他人 clone 后 `xcodebuild -scheme iXcode` 找不到 scheme
+schemes:
+  iXcode:
+    build:
+      targets:
+        iXcode: all
+        iXcodeTests: [test]
+    run:
+      config: Release
+    test:
+      config: Debug
+      targets:
+        - iXcodeTests
+    archive:
+      config: Release
